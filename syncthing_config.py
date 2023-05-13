@@ -73,7 +73,7 @@ def find_obsolete_device_ids(root: ET.Element) -> list[str]:
     return [line.split()[0] for line in set(obsolete_devices)]
 
 
-def remove_obsolete_device(root: ET.Element, device_id: str):
+def remove_obsolete_device(root: ET.Element, device_id: str) -> None:
     obsolete_device = root.find(f"device[@id='{device_id}']")
     if obsolete_device is not None:
         root.remove(obsolete_device)
@@ -84,7 +84,7 @@ def remove_obsolete_device(root: ET.Element, device_id: str):
             folder.remove(device)
 
 
-def add_tailscale_address(root: ET.Element):
+def add_tailscale_address(root: ET.Element) -> None:
     tailscale: dict[str, str] = {}
     proc = subprocess.run(
         "tailscale status",
