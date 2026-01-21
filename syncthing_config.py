@@ -9,7 +9,10 @@ from urllib import request
 import xml.etree.ElementTree as ET
 
 SYNCTHING_ENDPOINT = "http://localhost:8384/rest/stats/device"
-SYNCTHING_CONFIG = Path.home().joinpath(".config/syncthing/config.xml")
+SYNCTHING_CONFIG_PATHS = {
+    Path.home().joinpath(".local/state/syncthing/config.xml"),
+    Path.home().joinpath(".config/syncthing/config.xml"),
+}
 SYNCTHING_OBSOLETE_DEVICES = \
     Path(__file__).parent.joinpath("syncthing_obsolete_devices.txt")
 # Synology NAS
@@ -115,7 +118,16 @@ def main():
         with open(SYNCTHING_OBSOLETE_DEVICES, "w"):
             pass
 
-    tree = ET.parse(SYNCTHING_CONFIG)
+    for config_path in SYNCTHING_CONFIG_PATHS:
+        if config_path.exists():
+            syncthing_config_path = config_path
+            break
+
+    if not syncthing_config_path:
+        print('"config.xml" is not found.')
+        exit()
+
+    tree = ET.parse(syncthing_config_path)
     root = tree.getroot()
 
     obsolete_device_ids: list[str] = find_obsolete_device_ids(root)
@@ -124,9 +136,9 @@ def main():
         print(device_id)
         remove_obsolete_device(root, device_id)
 
-    add_tailscale_address(root)
+    # add_tailscale_address(root)
 
-    tree.write(SYNCTHING_CONFIG)
+    tree.write(syncthing_config_path)
     tree.write(Path(__file__).parent.joinpath("syncthing_config.xml"))
 
 
