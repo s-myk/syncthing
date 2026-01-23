@@ -1,21 +1,37 @@
 # Syncthing
 
 - Installing Syncthing on Ubuntu  
-  https://syncthing.net/downloads/
+  https://apt.syncthing.net/
 
   ```shell
-  # echo "deb https://apt.syncthing.net/ syncthing stable" | sudo tee /etc/apt/sources.list.d/syncthing.list
-  # curl -s https://syncthing.net/release-key.txt | sudo apt-key add -
+  # Add the release PGP keys:
+  sudo mkdir -p /etc/apt/keyrings
+  sudo curl -L -o /etc/apt/keyrings/syncthing-archive-keyring.gpg https://syncthing.net/release-key.gpg
+
+  # Add the "stable-v2" channel to your APT sources:
+  echo "deb [signed-by=/etc/apt/keyrings/syncthing-archive-keyring.gpg] https://apt.syncthing.net/ syncthing stable-v2" | sudo tee /etc/apt/sources.list.d/syncthing.list
+
   sudo apt-get update
   sudo apt-get install syncthing
   sudo systemctl enable -now syncthing@$USER
+  ```
+
+- Remove Syncthing conflict and swap files
+
+  ```console
+  find . -name *sync-conflict-*
+  find . -name *sync-conflict-* | xargs rm
+  ```
+
+  ```console
+  find . -name ".syncthing.*.tmp*"
+  find . -name ".syncthing.*.tmp*" | xargs rm
   ```
 
 - Installing Syncthing on Synology
 
   Syncthing packages  
   https://synocommunity.com/package/syncthing
-
   - DS220+ : x86_64
   - DS218play : aarch64
 
@@ -33,9 +49,7 @@
 ---
 
 - Trouble Shooting
-
   - Host check error
-
     - Why do I get “Host check error” in the GUI/API?  
       https://docs.syncthing.net/users/faq.html#why-do-i-get-host-check-error-in-the-gui-api
 
@@ -46,7 +60,6 @@
     ```
 
   - inotify limits
-
     - How do I increase the inotify limit to get my filesystem watcher to work?  
       https://docs.syncthing.net/users/faq.html#how-do-i-increase-the-inotify-limit-to-get-my-filesystem-watcher-to-work
 
